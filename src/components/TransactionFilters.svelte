@@ -1,11 +1,11 @@
 <script lang="ts">
 import type { Writable } from "svelte/store";
 import { searchTerm, caseSensitiveSearch, startDate, startTime, endDate, endTime } from "../Store";
-import { DatePicker, DateRange, Switch, TextField, TimePicker } from "attractions";
+import { DatePicker, Switch, TextField, TimePicker } from "attractions";
 import { SearchIcon } from "svelte-feather-icons";
 import { setState } from "../State";
 
-const setDate = (stateVar: Writable<Date>) => (ev: CustomEvent<{ value: Date | DateRange }>) => {
+const setDate = (stateVar: Writable<Date>) => (ev: CustomEvent<{ value: Date }>) => {
     stateVar.set(ev.detail.value);
 };
 </script>
