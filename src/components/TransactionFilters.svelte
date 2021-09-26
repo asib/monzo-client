@@ -1,7 +1,7 @@
 <script lang="ts">
 import type { Writable } from "svelte/store";
-import { searchTerm, caseSensitiveSearch, startDate, startTime, endDate, endTime } from "../Store";
-import { DatePicker, Switch, TextField, TimePicker } from "attractions";
+import { searchTerm, caseSensitiveSearch, startDate, startTime, endDate, endTime, incomingOutgoing, IncomingOutgoingFilterChoices } from "../Store";
+import { DatePicker, Switch, Tabs, TextField, TimePicker } from "attractions";
 import { SearchIcon } from "svelte-feather-icons";
 import { setState } from "../State";
 
@@ -11,7 +11,14 @@ const setDate = (stateVar: Writable<Date>) => (ev: CustomEvent<{ value: Date }>)
 </script>
 
 <main>
-    <div class="line1">
+    <div class="incoming-outgoing">
+        <Tabs
+            name="incoming-outgoing-both"
+            items={IncomingOutgoingFilterChoices.concat()}
+            bind:value={$incomingOutgoing}
+        />
+    </div>
+    <div class="search">
         <TextField
             bind:value={$searchTerm}
             type="search"
@@ -27,7 +34,7 @@ const setDate = (stateVar: Writable<Date>) => (ev: CustomEvent<{ value: Date }>)
             <span class="ml">Case sensitive</span>
         </Switch>
     </div>
-    <div class="line2">
+    <div class="datetime">
         <DatePicker on:change={setDate(startDate)} locale="en-GB" format="%d/%m/%Y" />
         <TimePicker on:change={setDate(startTime)} format="%H:%M:%S" />
         <span>to</span>
@@ -46,8 +53,13 @@ const setDate = (stateVar: Writable<Date>) => (ev: CustomEvent<{ value: Date }>)
     div:not(:first-child) {
         margin-top: 10px;
     }
+    
+    .incoming-outgoing {
+        max-width: 250px;
+        margin: 0 auto;
+    }
 
-    .line1 {
+    .search {
         display: grid;
         grid-template-columns: 65% auto;
         column-gap: 20px;

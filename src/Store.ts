@@ -1,6 +1,10 @@
 import { Writable, writable, derived } from "svelte/store";
 import type { Transaction } from "./Models";
 
+export const IncomingOutgoingFilterChoices = ["incoming", "outgoing", "both"] as const;
+export type IncomingOutgoingFilter = (typeof IncomingOutgoingFilterChoices)[number];
+
+
 export const formatCreatedDate = (date: Date): string => {
     return `${date.toLocaleDateString("en-GB")} ${date.toLocaleTimeString("en-GB")}`;
 }
@@ -23,10 +27,29 @@ export const startDate: Writable<Date | null> = writable();
 export const endDate: Writable<Date | null> = writable();
 export const startTime: Writable<Date | null> = writable();
 export const endTime: Writable<Date | null> = writable();
+export const incomingOutgoing: Writable<IncomingOutgoingFilter> = writable("both");
 
 export const transactions: Writable<Array<Transaction>> = writable();
 
-export const filteredTransactions = derived([searchTerm, caseSensitiveSearch, startDate, startTime, endDate, endTime, transactions], ([$searchTerm, $caseSensitiveSearch, $startDate, $startTime, $endDate, $endTime, $transactions]) => {
+export const filteredTransactions = derived([
+    searchTerm,
+    caseSensitiveSearch,
+    startDate,
+    startTime,
+    endDate,
+    endTime,
+    incomingOutgoing,
+    transactions
+], ([
+    $searchTerm,
+    $caseSensitiveSearch,
+    $startDate,
+    $startTime,
+    $endDate,
+    $endTime,
+    $incomingOutgoing,
+    $transactions
+]) => {
     if (!$transactions)
         return null;
 
@@ -55,6 +78,9 @@ export const filteredTransactions = derived([searchTerm, caseSensitiveSearch, st
     let result = $transactions.filter(matchAnyTermFilter);
     result = startDateTime ? result.filter(filterByDateTime((a, b) => a >= b)(startDateTime)) : result;
     result = endDateTime ? result.filter(filterByDateTime((a, b) => a <= b)(endDateTime)) : result;
+    result = $incomingOutgoing === "both"     ? result
+           : $incomingOutgoing === "incoming" ? result.filter(transaction => transaction.amount >= 0)
+                                              : result.filter(transaction => transaction.amount < 0);
 
     return result;
 });
