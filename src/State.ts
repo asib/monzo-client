@@ -1,7 +1,4 @@
-import { writable } from "svelte/store";
 import type { Transaction } from "./Models";
-
-export const transactions = writable<Array<Transaction>>([]);
 
 export type AppState = {
     clientId: string,

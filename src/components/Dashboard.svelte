@@ -3,6 +3,8 @@ import * as Api from "../Api";
 import * as State from "../State";
 import { Transaction } from "../Models";
 import TransactionsTable from "./TransactionsTable.svelte";
+import TransactionFilters from "./TransactionFilters.svelte";
+import { transactions, filteredTransactions } from "../Store";
 
 function handleLogout(ev) {
     State.setState({
@@ -15,32 +17,37 @@ function handleLogout(ev) {
 const appState = State.getState();
 const apiClient = Api.makeClient(appState.accessToken);
 
-let transactionsPromise: Promise<Array<Transaction>>;
+let transactionsPromise: Promise<void>;
 
 if (!appState.transactions) {
     transactionsPromise = (async () => {
         const accounts = await apiClient.accounts();
-        const transactions = await apiClient.transactions(accounts[0].id);
+        const _transactions = await apiClient.transactions(accounts[0].id);
 
         State.setState({
             ...State.getState(),
-            transactions,
+            transactions: _transactions,
         });
 
-        return transactions;
+        $transactions = _transactions;
+        return;
     })();
 } else {
-    transactionsPromise = Promise.resolve(appState.transactions);
+    $transactions = appState.transactions;
+    transactionsPromise = Promise.resolve();
 }
+
 </script>
 
 <main>
     <button on:click={handleLogout}>Logout</button>
 
+    <TransactionFilters />
+
     {#await transactionsPromise }
         <p>Loading transactions...</p>
-    {:then transactions }
-        <TransactionsTable transactions={transactions} />
+    {:then _complete }
+        <TransactionsTable transactions={$filteredTransactions} />
     {:catch error }
         <p>{error.message}</p>
     {/await}
