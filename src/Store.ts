@@ -5,11 +5,28 @@ export const formatCreatedDate = (date: Date): string => {
     return `${date.toLocaleDateString("en-GB")} ${date.toLocaleTimeString("en-GB")}`;
 }
 
+const createDateTimeFrom = (date: Date, time: Date): Date => {
+    let dateTime: Date | null = null;
+    if (date) {
+        dateTime = new Date(date);
+        if (time) {
+            dateTime.setHours(time.getHours(), time.getMinutes(), time.getSeconds());
+        }
+    }
+
+    return dateTime;
+}
+
 export const searchTerm: Writable<string> = writable("");
 export const caseSensitiveSearch: Writable<boolean> = writable(false);
+export const startDate: Writable<Date | null> = writable();
+export const endDate: Writable<Date | null> = writable();
+export const startTime: Writable<Date | null> = writable();
+export const endTime: Writable<Date | null> = writable();
+
 export const transactions: Writable<Array<Transaction>> = writable();
 
-export const filteredTransactions = derived([searchTerm, caseSensitiveSearch, transactions], ([$searchTerm, $caseSensitiveSearch, $transactions]) => {
+export const filteredTransactions = derived([searchTerm, caseSensitiveSearch, startDate, startTime, endDate, endTime, transactions], ([$searchTerm, $caseSensitiveSearch, $startDate, $startTime, $endDate, $endTime, $transactions]) => {
     if (!$transactions)
         return null;
 
@@ -32,7 +49,14 @@ export const filteredTransactions = derived([searchTerm, caseSensitiveSearch, tr
         }, true);
     }
 
-    return $transactions.filter(matchAnyTermFilter);
+    const startDateTime = createDateTimeFrom($startDate, $startTime);
+    const endDateTime = createDateTimeFrom($endDate, $endTime);
+
+    let result = $transactions.filter(matchAnyTermFilter);
+    result = startDateTime ? result.filter(filterByDateTime((a, b) => a >= b)(startDateTime)) : result;
+    result = endDateTime ? result.filter(filterByDateTime((a, b) => a <= b)(endDateTime)) : result;
+
+    return result;
 });
 
 const filterBySearch = (caseSensitive: boolean): Array<(searchTerm: string) => (transaction: Transaction) => boolean> => {
@@ -52,3 +76,5 @@ const filterByDescriptionCaseInsensitive = (searchTerm: string) => (transaction:
 
 const filterByAmount = (searchTerm: string) => (transaction: Transaction) => transaction.amount.toString().includes(searchTerm);
 const filterByDate = (searchTerm: string) => (transaction: Transaction) => formatCreatedDate(transaction.created).includes(searchTerm);
+
+const filterByDateTime = (comparator: <T>(t1: T, t2: T) => boolean) => (dateTime: Date) => (transaction: Transaction): boolean => comparator(transaction.created, dateTime);
