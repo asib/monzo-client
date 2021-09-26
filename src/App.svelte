@@ -36,7 +36,7 @@
 	{#if authorizationCode }
 		{#await accessTokenPromise then accessTokenSuccess } 
 			{#if accessTokenSuccess }
-				<p>Redirecting...</p>
+				<p>Give access to this app through the Monzo app, then refresh the page.</p>
 			{:else}
 				<p>Failed to retrieve access token: {accessTokenSuccess}</p>
 			{/if}
