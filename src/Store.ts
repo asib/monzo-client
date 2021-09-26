@@ -67,14 +67,14 @@ const filterBySearch = (caseSensitive: boolean): Array<(searchTerm: string) => (
     ]
 }
 
-const filterByDescriptionCaseSensitive = (searchTerm: string) => (transaction: Transaction) => transaction.description.includes(searchTerm);
-const filterByDescriptionCaseInsensitive = (searchTerm: string) => (transaction: Transaction) => {
+const filterByDescriptionCaseSensitive = (searchTerm: string) => (transaction: Transaction): boolean => transaction.description.includes(searchTerm);
+const filterByDescriptionCaseInsensitive = (searchTerm: string) => (transaction: Transaction): boolean => {
     const matches = transaction.description.match(new RegExp(searchTerm, "i"));
     
     return (matches && matches.length > 0);
 };
 
-const filterByAmount = (searchTerm: string) => (transaction: Transaction) => transaction.amount.toString().includes(searchTerm);
-const filterByDate = (searchTerm: string) => (transaction: Transaction) => formatCreatedDate(transaction.created).includes(searchTerm);
+const filterByAmount = (searchTerm: string) => (transaction: Transaction): boolean => transaction.amount.toString().includes(searchTerm);
+const filterByDate = (searchTerm: string) => (transaction: Transaction): boolean => formatCreatedDate(transaction.created).includes(searchTerm);
 
 const filterByDateTime = (comparator: <T>(t1: T, t2: T) => boolean) => (dateTime: Date) => (transaction: Transaction): boolean => comparator(transaction.created, dateTime);
