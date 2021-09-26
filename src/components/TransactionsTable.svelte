@@ -1,38 +1,32 @@
 <script lang="ts">
     import { Transaction } from "../Models";
+    import { Table } from "attractions";
+    import { formatCreatedDate } from "../Store";
 
     export let transactions: Array<Transaction>;
 
-    const formatCreatedDate = (date: Date): string => {
-        return `${date.toLocaleDateString("en-GB")} ${date.toLocaleTimeString("en-GB")}`;
-    }
+    const headers = [
+        { text: "Amount", value: "amount" },
+        { text: "Created", value: "created" },
+        { text: "Description", value: "description" },
+    ];
+
+    $: items = transactions.map(transaction => ({
+        amount: transaction.amount,
+        created: formatCreatedDate(transaction.created),
+        description: transaction.description,
+    }));
 </script>
 
 <main>
-    <table>
-        <thead>
-            <tr>
-                <th>Amount</th>
-                <th>Created</th>
-                <th>Currency</th>
-                <th>Description</th>
-            </tr>
-        </thead>
-        <tbody>
-            {#each transactions as transaction }
-                <tr>
-                    <td>£{transaction.amount}</td>
-                    <td>{formatCreatedDate(transaction.created)}</td>
-                    <td>{transaction.currency}</td>
-                    <td>{transaction.description}</td>
-                </tr>
-            {/each}
-        </tbody>
-    </table>
+    <Table {headers} {items} />
 </main>
 
 <style>
-    table {
+    main {
+        padding-top: 20px;
+        max-width: 700px;
+        overflow-x: scroll;
         margin: 0 auto;
     }
 </style>

@@ -3,6 +3,7 @@
 	import Dashboard from "./components/Dashboard.svelte";
 	import * as Api from "./Api";
 	import * as State from "./State";
+	import { Loading } from "attractions";
 
 	const apiClient: Api.Client = Api.makeClient();
 	const appState: State.AppState | null = State.getState();
@@ -34,7 +35,9 @@
 <main>
 	<h1>Monzo Client</h1>
 	{#if authorizationCode }
-		{#await accessTokenPromise then accessTokenSuccess } 
+		{#await accessTokenPromise }
+			<Loading />
+		{:then accessTokenSuccess }
 			{#if accessTokenSuccess }
 				<p>Give access to this app through the Monzo app, then refresh the page.</p>
 			{:else}

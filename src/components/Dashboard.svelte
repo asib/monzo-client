@@ -1,10 +1,10 @@
 <script lang="ts">
 import * as Api from "../Api";
 import * as State from "../State";
-import { Transaction } from "../Models";
 import TransactionsTable from "./TransactionsTable.svelte";
 import TransactionFilters from "./TransactionFilters.svelte";
 import { transactions, filteredTransactions } from "../Store";
+import { Loading } from "attractions";
 
 function handleLogout(ev) {
     State.setState({
@@ -46,6 +46,7 @@ if (!appState.transactions) {
 
     {#await transactionsPromise }
         <p>Loading transactions...</p>
+        <Loading />
     {:then _complete }
         <TransactionsTable transactions={$filteredTransactions} />
     {:catch error }
